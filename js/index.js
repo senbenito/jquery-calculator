@@ -50,8 +50,7 @@ $(function() {
       $("#screen").html('Error');
     } else {
     countOperands(string);
-    console.log('operandCounter: ' + operandCounter);
-    subtotal = string;
+    // subtotal = string;
     nextOperatorIndex = string.length;
     console.log('OG string: ' + string);
     for (let i=0; i<string.length; i++){
@@ -60,10 +59,10 @@ $(function() {
       console.log(valueIsNaN(parseInt((string[i]).valueOf(), 10)));
 
       if ((valueIsNaN(parseInt((string[i]).valueOf(), 10)) && (operatorAtIndex === 0))){
-        operatorAtIndex = [i];
+        operatorAtIndex = i;
         console.log('operatorAtIndex: ' + operatorAtIndex);
       } else if ((valueIsNaN(parseInt((string[i]).valueOf(), 10)) && (operatorAtIndex !== 0))){
-        nextOperatorIndex = [i];
+        nextOperatorIndex = i;
         console.log('nextOperatorIndex: ' + nextOperatorIndex);
         doMath();
         // subtotal = string.replace((string.slice(0,nextOperatorIndex)), subtotal);
@@ -81,8 +80,8 @@ $(function() {
         subtotalEl2 += string[i];
         console.log('subtotalEl2: ' + subtotalEl2);
         doMath();
+        string = '';
         debugger;
-        // $("#screen").append("= " + subtotal);
         return subtotal;
       } else {
         subtotalEl2 += string[i];
@@ -96,6 +95,7 @@ $(function() {
     // subtotal = subtotalEl1 / subtotalEl2;
     subtotal = string.replace((string.slice(0,nextOperatorIndex)), (subtotalEl1 / subtotalEl2));
     console.log('division subtotal: ' + subtotal);
+    $("#screen").html(subtotal);
     subtotalEl1 = 0;
     subtotalEl2 = 0;
     operatorAtIndex = 0;
@@ -105,6 +105,7 @@ $(function() {
     // subtotal = subtotalEl1 * subtotalEl2;
     subtotal = string.replace((string.slice(0,nextOperatorIndex)), (subtotalEl1 * subtotalEl2));
     console.log('multiplication subtotal: ' + subtotal);
+    $("#screen").html(subtotal);
     subtotalEl1 = 0;
     subtotalEl2 = 0;
     operatorAtIndex = 0;
@@ -115,6 +116,7 @@ $(function() {
     console.log('subtraction');
     subtotal = string.replace((string.slice(0,nextOperatorIndex)), (subtotalEl1 - subtotalEl2));
     console.log('subtraction subtotal: ' + subtotal);
+    $("#screen").html(subtotal);
     subtotalEl1 = 0;
     subtotalEl2 = 0;
     operatorAtIndex = 0;
@@ -134,6 +136,101 @@ $(function() {
     }//closes operator switch
   }//closes doMath
 }//closes totalIt (leave down here so doMath has string scope)
+
+function totalIt(string){
+  if ((!string.includes('÷')) && (!string.includes('x')) && (!string.includes('-')) && (!string.includes('+'))){
+    $("#screen").html('Error');
+  } else if (string[string.indexOf('÷')+1] === '0'){
+    $("#screen").html('Error');
+  } else {
+  countOperands(string);
+  // subtotal = string;
+  nextOperatorIndex = string.length;
+  console.log('OG string: ' + string);
+  for (let i=0; i<string.length; i++){
+    console.log("i: " + [i]);
+    console.log(parseInt((string[i]).valueOf(), 10));
+    console.log(valueIsNaN(parseInt((string[i]).valueOf(), 10)));
+
+    if ((valueIsNaN(parseInt((string[i]).valueOf(), 10)) && (operatorAtIndex === 0))){
+      operatorAtIndex = i;
+      console.log('operatorAtIndex: ' + operatorAtIndex);
+    } else if ((valueIsNaN(parseInt((string[i]).valueOf(), 10)) && (operatorAtIndex !== 0))){
+      nextOperatorIndex = i;
+      console.log('nextOperatorIndex: ' + nextOperatorIndex);
+      doMath();
+      // subtotal = string.replace((string.slice(0,nextOperatorIndex)), subtotal);
+      $("#screen").html(subtotal);
+      return totalIt(subtotal);
+    } else if (valueIsNaN(parseInt((string[i]).valueOf(), 10)) === false && i<=operatorAtIndex){
+      subtotalEl1 += string[i];
+      console.log('subtotalEl1: ' + subtotalEl1);
+    } else if (valueIsNaN(parseInt((string[i]).valueOf(), 10)) === false && operandCounter > 1){
+        console.log('two operands');
+        subtotalEl2 += string[i];
+        console.log('subtotalEl2: ' + subtotalEl2);
+    } else if (i===string.length-1){
+      console.log('solo operand');
+      subtotalEl2 += string[i];
+      console.log('subtotalEl2: ' + subtotalEl2);
+      doMath();
+      string = '';
+      debugger;
+      return subtotal;
+    } else {
+      subtotalEl2 += string[i];
+      console.log('subtotalEl2: ' + subtotalEl2);
+    }//closes operand-subtotal conditionals
+  }//closes for loop
+}//closes error conditionals
+
+function doMath() {switch (string[operatorAtIndex]) {
+  case '÷':
+  // subtotal = subtotalEl1 / subtotalEl2;
+  subtotal = string.replace((string.slice(0,nextOperatorIndex)), (subtotalEl1 / subtotalEl2));
+  console.log('division subtotal: ' + subtotal);
+  $("#screen").html(subtotal);
+  subtotalEl1 = 0;
+  subtotalEl2 = 0;
+  operatorAtIndex = 0;
+
+  break;
+  case 'x':
+  // subtotal = subtotalEl1 * subtotalEl2;
+  subtotal = string.replace((string.slice(0,nextOperatorIndex)), (subtotalEl1 * subtotalEl2));
+  console.log('multiplication subtotal: ' + subtotal);
+  $("#screen").html(subtotal);
+  subtotalEl1 = 0;
+  subtotalEl2 = 0;
+  operatorAtIndex = 0;
+
+  break;
+  case '-':
+  // subtotal = subtotalEl1 - subtotalEl2;
+  console.log('subtraction');
+  subtotal = string.replace((string.slice(0,nextOperatorIndex)), (subtotalEl1 - subtotalEl2));
+  console.log('subtraction subtotal: ' + subtotal);
+  $("#screen").html(subtotal);
+  subtotalEl1 = 0;
+  subtotalEl2 = 0;
+  operatorAtIndex = 0;
+
+  break;
+  default:
+  // subtotal = parseInt(subtotalEl1, 10) + parseInt(subtotalEl2, 10);
+  console.log('addition');
+  subtotal = string.replace((string.slice(0,nextOperatorIndex)), (parseInt(subtotalEl1, 10) + parseInt(subtotalEl2, 10)));
+  console.log('string.slice: ' + string.slice(0,nextOperatorIndex));
+  console.log('addition subtotal: ' + subtotal);
+  $("#screen").html(subtotal);
+  subtotalEl1 = 0;
+  subtotalEl2 = 0;
+  operatorAtIndex = 0;
+
+  }//closes operator switch
+}//closes doMath
+}//closes totalIt2 (leave down here so doMath has string scope)
+
 });//closes JS
 
 
